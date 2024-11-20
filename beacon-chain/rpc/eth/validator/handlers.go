@@ -75,7 +75,7 @@ func (s *Server) GetAggregateAttestation(w http.ResponseWriter, r *http.Request)
 
 // GetAggregateAttestationV2 aggregates all attestations matching the given attestation data root and slot, returning the aggregated result.
 func (s *Server) GetAggregateAttestationV2(w http.ResponseWriter, r *http.Request) {
-	ctx, span := trace.StartSpan(r.Context(), "validator.GetAggregateAttestationV2")
+	_, span := trace.StartSpan(r.Context(), "validator.GetAggregateAttestationV2")
 	defer span.End()
 
 	_, attDataRoot, ok := shared.HexFromQuery(w, r, "attestation_data_root", fieldparams.RootLength, true)
@@ -91,14 +91,15 @@ func (s *Server) GetAggregateAttestationV2(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	v := version.FromEpoch(slots.ToEpoch(primitives.Slot(slot)))
 	agg := s.aggregatedAttestation(w, primitives.Slot(slot), attDataRoot, primitives.CommitteeIndex(index))
 	if agg == nil {
 		return
 	}
 	resp := &structs.AggregateAttestationResponse{
-		Version: version.String(agg.Version()),
+		Version: version.String(v),
 	}
-	if agg.Version() >= version.Electra {
+	if v >= version.Electra {
 		typedAgg, ok := agg.(*ethpbalpha.AttestationElectra)
 		if !ok {
 			httputil.HandleError(w, fmt.Sprintf("Attestation is not of type %T", &ethpbalpha.AttestationElectra{}), http.StatusInternalServerError)
@@ -123,12 +124,7 @@ func (s *Server) GetAggregateAttestationV2(w http.ResponseWriter, r *http.Reques
 		}
 		resp.Data = data
 	}
-	headState, err := s.ChainInfoFetcher.HeadStateReadOnly(ctx)
-	if err != nil {
-		httputil.HandleError(w, "Could not get head state: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set(api.VersionHeader, version.String(headState.Version()))
+	w.Header().Set(api.VersionHeader, version.String(v))
 	httputil.WriteJson(w, resp)
 }
 

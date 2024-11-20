@@ -1,6 +1,10 @@
 package version
 
-import "github.com/pkg/errors"
+import (
+	"github.com/pkg/errors"
+	"github.com/prysmaticlabs/prysm/v5/config/params"
+	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
+)
 
 const (
 	Phase0 = iota
@@ -34,6 +38,24 @@ func FromString(name string) (int, error) {
 		return 0, errors.Wrap(ErrUnrecognizedVersionName, name)
 	}
 	return v, nil
+}
+
+// FromEpoch translates an epoch into it's corresponding version.
+func FromEpoch(epoch primitives.Epoch) int {
+	switch {
+	case epoch >= params.BeaconConfig().ElectraForkEpoch:
+		return Electra
+	case epoch >= params.BeaconConfig().DenebForkEpoch:
+		return Deneb
+	case epoch >= params.BeaconConfig().CapellaForkEpoch:
+		return Capella
+	case epoch >= params.BeaconConfig().BellatrixForkEpoch:
+		return Bellatrix
+	case epoch >= params.BeaconConfig().AltairForkEpoch:
+		return Altair
+	default:
+		return Phase0
+	}
 }
 
 // String returns the canonical string form of a version.
