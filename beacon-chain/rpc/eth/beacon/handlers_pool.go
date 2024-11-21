@@ -720,7 +720,7 @@ func (s *Server) GetAttesterSlashingsV2(w http.ResponseWriter, r *http.Request) 
 	ctx, span := trace.StartSpan(r.Context(), "beacon.GetAttesterSlashingsV2")
 	defer span.End()
 
-	slot := s.HeadFetcher.HeadSlot()
+	slot := s.TimeFetcher.CurrentSlot()
 	v := slots.ToForkVersion(slot)
 	headState, err := s.ChainInfoFetcher.HeadStateReadOnly(ctx)
 	if err != nil {
