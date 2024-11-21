@@ -91,7 +91,7 @@ func (s *Server) GetAggregateAttestationV2(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	v := version.FromEpoch(slots.ToEpoch(primitives.Slot(slot)))
+	v := slots.ToForkVersion(primitives.Slot(slot))
 	agg := s.aggregatedAttestation(w, primitives.Slot(slot), attDataRoot, primitives.CommitteeIndex(index))
 	if agg == nil {
 		return

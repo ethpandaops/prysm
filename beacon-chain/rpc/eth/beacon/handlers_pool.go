@@ -98,8 +98,7 @@ func (s *Server) ListAttestationsV2(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-
-	v := version.FromEpoch(slots.ToEpoch(primitives.Slot(slot)))
+	v := slots.ToForkVersion(primitives.Slot(slot))
 	attestations := s.AttestationsPool.AggregatedAttestations()
 	unaggAtts, err := s.AttestationsPool.UnaggregatedAttestations()
 	if err != nil {
@@ -722,7 +721,7 @@ func (s *Server) GetAttesterSlashingsV2(w http.ResponseWriter, r *http.Request) 
 	defer span.End()
 
 	slot := s.HeadFetcher.HeadSlot()
-	v := version.FromEpoch(slots.ToEpoch(slot))
+	v := slots.ToForkVersion(slot)
 	headState, err := s.ChainInfoFetcher.HeadStateReadOnly(ctx)
 	if err != nil {
 		httputil.HandleError(w, "Could not get head state: "+err.Error(), http.StatusInternalServerError)
