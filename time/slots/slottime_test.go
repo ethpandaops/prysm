@@ -7,6 +7,7 @@ import (
 
 	"github.com/prysmaticlabs/prysm/v5/config/params"
 	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
+	"github.com/prysmaticlabs/prysm/v5/runtime/version"
 	"github.com/prysmaticlabs/prysm/v5/testing/assert"
 	"github.com/prysmaticlabs/prysm/v5/testing/require"
 	prysmTime "github.com/prysmaticlabs/prysm/v5/time"
@@ -631,4 +632,55 @@ func TestSecondsUntilNextEpochStart(t *testing.T) {
 	currentSlot := CurrentSlot(newGenesisTime)
 	require.Equal(t, true, IsEpochStart(currentSlot))
 
+}
+
+func TestToForkVersion(t *testing.T) {
+	t.Run("Electra fork version", func(t *testing.T) {
+		slot, err := EpochStart(params.BeaconConfig().ElectraForkEpoch)
+		assert.NoError(t, err)
+
+		result := ToForkVersion(slot)
+		assert.Equal(t, version.Electra, result)
+	})
+
+	t.Run("Deneb fork version", func(t *testing.T) {
+		slot, err := EpochStart(params.BeaconConfig().DenebForkEpoch)
+		assert.NoError(t, err)
+
+		result := ToForkVersion(slot)
+		assert.Equal(t, version.Deneb, result)
+	})
+
+	t.Run("Capella fork version", func(t *testing.T) {
+		slot, err := EpochStart(params.BeaconConfig().CapellaForkEpoch)
+		assert.NoError(t, err)
+
+		result := ToForkVersion(slot)
+		assert.Equal(t, version.Capella, result)
+	})
+
+	t.Run("Bellatrix fork version", func(t *testing.T) {
+		slot, err := EpochStart(params.BeaconConfig().BellatrixForkEpoch)
+		assert.NoError(t, err)
+
+		result := ToForkVersion(slot)
+		assert.Equal(t, version.Bellatrix, result)
+	})
+
+	t.Run("Altair fork version", func(t *testing.T) {
+		slot, err := EpochStart(params.BeaconConfig().AltairForkEpoch)
+		assert.NoError(t, err)
+
+		result := ToForkVersion(slot)
+		assert.Equal(t, version.Altair, result)
+	})
+
+	t.Run("Phase0 fork version", func(t *testing.T) {
+		slot, err := EpochStart(params.BeaconConfig().AltairForkEpoch)
+		assert.NoError(t, err)
+
+		slot = slot - 1
+		result := ToForkVersion(slot)
+		assert.Equal(t, version.Phase0, result)
+	})
 }
