@@ -637,50 +637,49 @@ func TestSecondsUntilNextEpochStart(t *testing.T) {
 func TestToForkVersion(t *testing.T) {
 	t.Run("Electra fork version", func(t *testing.T) {
 		slot, err := EpochStart(params.BeaconConfig().ElectraForkEpoch)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		result := ToForkVersion(slot)
-		assert.Equal(t, version.Electra, result)
+		require.Equal(t, version.Electra, result)
 	})
 
 	t.Run("Deneb fork version", func(t *testing.T) {
 		slot, err := EpochStart(params.BeaconConfig().DenebForkEpoch)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		result := ToForkVersion(slot)
-		assert.Equal(t, version.Deneb, result)
+		require.Equal(t, version.Deneb, result)
 	})
 
 	t.Run("Capella fork version", func(t *testing.T) {
 		slot, err := EpochStart(params.BeaconConfig().CapellaForkEpoch)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		result := ToForkVersion(slot)
-		assert.Equal(t, version.Capella, result)
+		require.Equal(t, version.Capella, result)
 	})
 
 	t.Run("Bellatrix fork version", func(t *testing.T) {
 		slot, err := EpochStart(params.BeaconConfig().BellatrixForkEpoch)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		result := ToForkVersion(slot)
-		assert.Equal(t, version.Bellatrix, result)
+		require.Equal(t, version.Bellatrix, result)
 	})
 
 	t.Run("Altair fork version", func(t *testing.T) {
 		slot, err := EpochStart(params.BeaconConfig().AltairForkEpoch)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		result := ToForkVersion(slot)
-		assert.Equal(t, version.Altair, result)
+		require.Equal(t, version.Altair, result)
 	})
 
 	t.Run("Phase0 fork version", func(t *testing.T) {
 		slot, err := EpochStart(params.BeaconConfig().AltairForkEpoch)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
-		slot = slot - 1
-		result := ToForkVersion(slot)
-		assert.Equal(t, version.Phase0, result)
+		result := ToForkVersion(slot - 1)
+		require.Equal(t, version.Phase0, result)
 	})
 }
