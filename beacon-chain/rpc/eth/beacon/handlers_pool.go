@@ -723,8 +723,7 @@ func (s *Server) GetAttesterSlashingsV2(w http.ResponseWriter, r *http.Request) 
 	ctx, span := trace.StartSpan(r.Context(), "beacon.GetAttesterSlashingsV2")
 	defer span.End()
 
-	slot := s.TimeFetcher.CurrentSlot()
-	v := slots.ToForkVersion(slot)
+	v := slots.ToForkVersion(s.TimeFetcher.CurrentSlot())
 	headState, err := s.ChainInfoFetcher.HeadStateReadOnly(ctx)
 	if err != nil {
 		httputil.HandleError(w, "Could not get head state: "+err.Error(), http.StatusInternalServerError)
@@ -735,14 +734,14 @@ func (s *Server) GetAttesterSlashingsV2(w http.ResponseWriter, r *http.Request) 
 
 	for _, slashing := range sourceSlashings {
 		var attStruct interface{}
-		if v >= version.Electra {
+		if v >= version.Electra && slashing.Version() >= version.Electra {
 			a, ok := slashing.(*eth.AttesterSlashingElectra)
 			if !ok {
 				httputil.HandleError(w, fmt.Sprintf("Unable to convert slashing of type %T to an Electra slashing", slashing), http.StatusInternalServerError)
 				return
 			}
 			attStruct = structs.AttesterSlashingElectraFromConsensus(a)
-		} else {
+		} else if v < version.Electra && slashing.Version() < version.Electra {
 			a, ok := slashing.(*eth.AttesterSlashing)
 			if !ok {
 				httputil.HandleError(w, fmt.Sprintf("Unable to convert slashing of type %T to a Phase0 slashing", slashing), http.StatusInternalServerError)
