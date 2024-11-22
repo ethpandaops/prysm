@@ -221,6 +221,12 @@ func TestGetAggregateAttestation(t *testing.T) {
 		aggSlot1_Root1_1 := createAttestation(1, bitfield.Bitlist{0b11100}, root1, 1)
 		aggSlot1_Root1_2 := createAttestation(1, bitfield.Bitlist{0b10111}, root1, 1)
 		aggSlot1_Root2 := createAttestation(1, bitfield.Bitlist{0b11100}, root2, 1)
+		// Added one pre-electra agg attestation to ensure that it is being ignored.
+		aggSlot1_Root2_2 := &ethpbalpha.Attestation{
+			AggregationBits: bitfield.Bitlist{0b10111},
+			Data:            createAttestationData(1, 1, 1, root2),
+			Signature:       sig.Marshal(),
+		}
 		aggSlot2 := createAttestation(2, bitfield.Bitlist{0b11100}, root1, 1)
 		unaggSlot3_Root1_1 := createAttestation(3, bitfield.Bitlist{0b11000}, root1, 1)
 		unaggSlot3_Root1_2 := createAttestation(3, bitfield.Bitlist{0b10100}, root1, 1)
@@ -259,9 +265,9 @@ func TestGetAggregateAttestation(t *testing.T) {
 		unagg, err := pool.UnaggregatedAttestations()
 		require.NoError(t, err)
 		require.Equal(t, 4, len(unagg), "Expected 4 unaggregated attestations")
-		require.NoError(t, pool.SaveAggregatedAttestations([]ethpbalpha.Att{aggSlot1_Root1_1, aggSlot1_Root1_2, aggSlot1_Root2, aggSlot2}), "Failed to save aggregated attestations")
+		require.NoError(t, pool.SaveAggregatedAttestations([]ethpbalpha.Att{aggSlot1_Root1_1, aggSlot1_Root1_2, aggSlot1_Root2, aggSlot2, aggSlot1_Root2_2}), "Failed to save aggregated attestations")
 		agg := pool.AggregatedAttestations()
-		require.Equal(t, 4, len(agg), "Expected 4 aggregated attestations")
+		require.Equal(t, 5, len(agg), "Expected 5 aggregated attestations, 4 electra and 1 pre electra")
 		bs, err := util.NewBeaconState()
 		require.NoError(t, err)
 

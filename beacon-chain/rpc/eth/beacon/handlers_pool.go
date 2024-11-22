@@ -748,6 +748,8 @@ func (s *Server) GetAttesterSlashingsV2(w http.ResponseWriter, r *http.Request) 
 				return
 			}
 			attStruct = structs.AttesterSlashingFromConsensus(a)
+		} else {
+			continue
 		}
 		attStructs = append(attStructs, attStruct)
 	}
