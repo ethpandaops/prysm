@@ -175,8 +175,7 @@ func matchingAtts(atts []ethpbalpha.Att, slot primitives.Slot, attDataRoot []byt
 		return []ethpbalpha.Att{}, nil
 	}
 
-	postElectra := atts[0].Version() >= version.Electra
-
+	postElectra := slots.ToForkVersion(slot) >= version.Electra
 	result := make([]ethpbalpha.Att, 0)
 	for _, att := range atts {
 		if att.GetData().Slot != slot {
@@ -188,11 +187,15 @@ func matchingAtts(atts []ethpbalpha.Att, slot primitives.Slot, attDataRoot []byt
 		// Post-Electra the committee index in the data root is always 0, so we need to
 		// compare the committee index separately.
 		if postElectra {
-			ci, err := att.GetCommitteeIndex()
-			if err != nil {
-				return nil, err
-			}
-			if ci != index {
+			if att.Version() >= version.Electra {
+				ci, err := att.GetCommitteeIndex()
+				if err != nil {
+					return nil, err
+				}
+				if ci != index {
+					continue
+				}
+			} else {
 				continue
 			}
 		}
