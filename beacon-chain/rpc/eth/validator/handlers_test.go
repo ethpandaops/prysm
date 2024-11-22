@@ -264,8 +264,16 @@ func TestGetAggregateAttestation(t *testing.T) {
 		require.Equal(t, 4, len(agg), "Expected 4 aggregated attestations")
 		bs, err := util.NewBeaconState()
 		require.NoError(t, err)
+
+		params.SetupTestConfigCleanup(t)
+		config := params.BeaconConfig()
+		config.ElectraForkEpoch = 0
+		params.OverrideBeaconConfig(config)
+
+		chainService := &mockChain.ChainService{State: bs}
 		s := &Server{
-			ChainInfoFetcher: &mockChain.ChainService{State: bs},
+			ChainInfoFetcher: chainService,
+			TimeFetcher:      chainService,
 			AttestationsPool: pool,
 		}
 		t.Run("non-matching attestation request", func(t *testing.T) {

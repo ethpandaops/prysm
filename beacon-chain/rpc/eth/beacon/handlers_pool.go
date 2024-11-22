@@ -98,6 +98,9 @@ func (s *Server) ListAttestationsV2(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
+	if slot == 0 {
+		slot = uint64(s.TimeFetcher.CurrentSlot())
+	}
 	v := slots.ToForkVersion(primitives.Slot(slot))
 	attestations := s.AttestationsPool.AggregatedAttestations()
 	unaggAtts, err := s.AttestationsPool.UnaggregatedAttestations()

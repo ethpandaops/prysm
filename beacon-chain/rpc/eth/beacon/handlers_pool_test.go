@@ -370,9 +370,17 @@ func TestListAttestations(t *testing.T) {
 			}
 			bs, err := util.NewBeaconStateElectra()
 			require.NoError(t, err)
+
+			params.SetupTestConfigCleanup(t)
+			config := params.BeaconConfig()
+			config.ElectraForkEpoch = 0
+			params.OverrideBeaconConfig(config)
+
+			chainService := &blockchainmock.ChainService{State: bs}
 			s := &Server{
 				AttestationsPool: attestations.NewPool(),
-				ChainInfoFetcher: &blockchainmock.ChainService{State: bs},
+				ChainInfoFetcher: chainService,
+				TimeFetcher:      chainService,
 			}
 			require.NoError(t, s.AttestationsPool.SaveAggregatedAttestations([]ethpbv1alpha1.Att{attElectra1, attElectra2}))
 			require.NoError(t, s.AttestationsPool.SaveUnaggregatedAttestations([]ethpbv1alpha1.Att{attElectra3, attElectra4}))
