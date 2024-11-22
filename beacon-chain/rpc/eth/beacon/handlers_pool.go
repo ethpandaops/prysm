@@ -113,7 +113,7 @@ func (s *Server) ListAttestationsV2(w http.ResponseWriter, r *http.Request) {
 	filteredAtts := make([]interface{}, 0, len(attestations))
 	for _, att := range attestations {
 		var includeAttestation bool
-		if v >= version.Electra {
+		if v >= version.Electra && att.Version() >= version.Electra {
 			attElectra, ok := att.(*eth.AttestationElectra)
 			if !ok {
 				httputil.HandleError(w, fmt.Sprintf("Unable to convert attestation of type %T", att), http.StatusInternalServerError)
@@ -125,7 +125,7 @@ func (s *Server) ListAttestationsV2(w http.ResponseWriter, r *http.Request) {
 				attStruct := structs.AttElectraFromConsensus(attElectra)
 				filteredAtts = append(filteredAtts, attStruct)
 			}
-		} else {
+		} else if v < version.Electra && att.Version() < version.Electra {
 			attOld, ok := att.(*eth.Attestation)
 			if !ok {
 				httputil.HandleError(w, fmt.Sprintf("Unable to convert attestation of type %T", att), http.StatusInternalServerError)
