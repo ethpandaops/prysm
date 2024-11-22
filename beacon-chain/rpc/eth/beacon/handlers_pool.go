@@ -99,7 +99,7 @@ func (s *Server) ListAttestationsV2(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	v := slots.ToForkVersion(primitives.Slot(slot))
-	if slot == 0 {
+	if rawSlot == "" {
 		v = slots.ToForkVersion(s.TimeFetcher.CurrentSlot())
 	}
 	attestations := s.AttestationsPool.AggregatedAttestations()
