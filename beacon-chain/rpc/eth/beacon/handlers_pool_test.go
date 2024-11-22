@@ -115,9 +115,16 @@ func TestListAttestations(t *testing.T) {
 		Signature: bytesutil.PadTo([]byte("signature4"), 96),
 	}
 	t.Run("V1", func(t *testing.T) {
+		bs, err := util.NewBeaconState()
+		require.NoError(t, err)
+
+		chainService := &blockchainmock.ChainService{State: bs}
 		s := &Server{
+			ChainInfoFetcher: chainService,
+			TimeFetcher:      chainService,
 			AttestationsPool: attestations.NewPool(),
 		}
+
 		require.NoError(t, s.AttestationsPool.SaveAggregatedAttestations([]ethpbv1alpha1.Att{att1, att2}))
 		require.NoError(t, s.AttestationsPool.SaveUnaggregatedAttestations([]ethpbv1alpha1.Att{att3, att4}))
 
@@ -204,10 +211,19 @@ func TestListAttestations(t *testing.T) {
 		t.Run("Pre-Electra", func(t *testing.T) {
 			bs, err := util.NewBeaconState()
 			require.NoError(t, err)
+
+			chainService := &blockchainmock.ChainService{State: bs}
 			s := &Server{
-				ChainInfoFetcher: &blockchainmock.ChainService{State: bs},
+				ChainInfoFetcher: chainService,
+				TimeFetcher:      chainService,
 				AttestationsPool: attestations.NewPool(),
 			}
+
+			params.SetupTestConfigCleanup(t)
+			config := params.BeaconConfig()
+			config.DenebForkEpoch = 0
+			params.OverrideBeaconConfig(config)
+
 			require.NoError(t, s.AttestationsPool.SaveAggregatedAttestations([]ethpbv1alpha1.Att{att1, att2}))
 			require.NoError(t, s.AttestationsPool.SaveUnaggregatedAttestations([]ethpbv1alpha1.Att{att3, att4}))
 			t.Run("empty request", func(t *testing.T) {
@@ -226,7 +242,7 @@ func TestListAttestations(t *testing.T) {
 				var atts []*structs.Attestation
 				require.NoError(t, json.Unmarshal(resp.Data, &atts))
 				assert.Equal(t, 4, len(atts))
-				assert.Equal(t, "phase0", resp.Version)
+				assert.Equal(t, "deneb", resp.Version)
 			})
 			t.Run("slot request", func(t *testing.T) {
 				url := "http://example.com?slot=2"
@@ -244,7 +260,7 @@ func TestListAttestations(t *testing.T) {
 				var atts []*structs.Attestation
 				require.NoError(t, json.Unmarshal(resp.Data, &atts))
 				assert.Equal(t, 2, len(atts))
-				assert.Equal(t, "phase0", resp.Version)
+				assert.Equal(t, "deneb", resp.Version)
 				for _, a := range atts {
 					assert.Equal(t, "2", a.Data.Slot)
 				}
@@ -265,7 +281,7 @@ func TestListAttestations(t *testing.T) {
 				var atts []*structs.Attestation
 				require.NoError(t, json.Unmarshal(resp.Data, &atts))
 				assert.Equal(t, 2, len(atts))
-				assert.Equal(t, "phase0", resp.Version)
+				assert.Equal(t, "deneb", resp.Version)
 				for _, a := range atts {
 					assert.Equal(t, "4", a.Data.CommitteeIndex)
 				}
@@ -286,7 +302,7 @@ func TestListAttestations(t *testing.T) {
 				var atts []*structs.Attestation
 				require.NoError(t, json.Unmarshal(resp.Data, &atts))
 				assert.Equal(t, 1, len(atts))
-				assert.Equal(t, "phase0", resp.Version)
+				assert.Equal(t, "deneb", resp.Version)
 				for _, a := range atts {
 					assert.Equal(t, "2", a.Data.Slot)
 					assert.Equal(t, "4", a.Data.CommitteeIndex)
