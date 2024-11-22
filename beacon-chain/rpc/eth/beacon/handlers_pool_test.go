@@ -1662,8 +1662,16 @@ func TestGetAttesterSlashings(t *testing.T) {
 			bs, err := util.NewBeaconStateElectra()
 			require.NoError(t, err)
 
+			params.SetupTestConfigCleanup(t)
+			config := params.BeaconConfig()
+			config.ElectraForkEpoch = 100
+			params.OverrideBeaconConfig(config)
+
+			chainService := &blockchainmock.ChainService{State: bs}
+
 			s := &Server{
-				ChainInfoFetcher: &blockchainmock.ChainService{State: bs},
+				ChainInfoFetcher: chainService,
+				TimeFetcher:      chainService,
 				SlashingsPool:    &slashingsmock.PoolMock{PendingAttSlashings: []ethpbv1alpha1.AttSlashing{slashing1PostElectra, slashing2PostElectra}},
 			}
 
@@ -1692,9 +1700,11 @@ func TestGetAttesterSlashings(t *testing.T) {
 		t.Run("pre-electra-ok", func(t *testing.T) {
 			bs, err := util.NewBeaconState()
 			require.NoError(t, err)
+			chainService := &blockchainmock.ChainService{State: bs}
 
 			s := &Server{
-				ChainInfoFetcher: &blockchainmock.ChainService{State: bs},
+				ChainInfoFetcher: chainService,
+				TimeFetcher:      chainService,
 				SlashingsPool:    &slashingsmock.PoolMock{PendingAttSlashings: []ethpbv1alpha1.AttSlashing{slashing1PreElectra, slashing2PreElectra}},
 			}
 
@@ -1722,8 +1732,15 @@ func TestGetAttesterSlashings(t *testing.T) {
 			bs, err := util.NewBeaconStateElectra()
 			require.NoError(t, err)
 
+			params.SetupTestConfigCleanup(t)
+			config := params.BeaconConfig()
+			config.ElectraForkEpoch = 100
+			params.OverrideBeaconConfig(config)
+
+			chainService := &blockchainmock.ChainService{State: bs}
 			s := &Server{
-				ChainInfoFetcher: &blockchainmock.ChainService{State: bs},
+				ChainInfoFetcher: chainService,
+				TimeFetcher:      chainService,
 				SlashingsPool:    &slashingsmock.PoolMock{PendingAttSlashings: []ethpbv1alpha1.AttSlashing{}},
 			}
 
