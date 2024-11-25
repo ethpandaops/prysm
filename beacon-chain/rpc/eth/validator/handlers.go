@@ -181,6 +181,7 @@ func matchingAtts(atts []ethpbalpha.Att, slot primitives.Slot, attDataRoot []byt
 		if att.GetData().Slot != slot {
 			continue
 		}
+
 		// We ignore the committee index from the request before Electra.
 		// This is because before Electra the committee index is part of the attestation data,
 		// meaning that comparing the data root is sufficient.
@@ -198,7 +199,14 @@ func matchingAtts(atts []ethpbalpha.Att, slot primitives.Slot, attDataRoot []byt
 			} else {
 				continue
 			}
+		} else {
+			// Append if pre electra and att.Version < version.Electra
+			if att.Version() < version.Electra {
+				result = append(result, att)
+				continue
+			}
 		}
+
 		root, err := att.GetData().HashTreeRoot()
 		if err != nil {
 			return nil, errors.Wrap(err, "could not get attestation data root")
