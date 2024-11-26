@@ -1,3 +1,7 @@
+# About this Fork
+
+This fork has been created due to a dependency triangle between Xatu, Hermes and Prysm. The [following PR](https://github.com/prysmaticlabs/prysm/pull/14351) by PrysmaticLabs is a WIP. Once merged, this fork can be removed.
+
 # Prysm: An Ethereum Consensus Implementation Written in Go
 
 [![Build status](https://badge.buildkite.com/b555891daf3614bae4284dcf365b2340cefc0089839526f096.svg?branch=master)](https://buildkite.com/prysmatic-labs/prysm)
